@@ -1,5 +1,5 @@
 use std::{array, thread::AccessError};
-
+// todo castling check checkmate and and maby alpasante
 fn main() {
     let mut fen:String = "rnbqkbnr/pppppppp/1P4P1/8/8/1p4p1/PPPPPPPP/RNBQKBNR w KQkq e3 0 1".to_string();
     let mut fen2:String = "rnbqkbnr/pppppppp/1P4P1/8/8/1p4p1/PPPPPPPP/RNBQKBNR b KQkq e3 0 1".to_string();
@@ -21,6 +21,10 @@ fn main() {
     // 
     let mut fen13:String = "rnbqkbnr/pppppppp/1p6/1p6/pK5p/1p6/PPPPPPPP/RNBQKBNR w KQkq e3 0 1".to_string();
     let mut fen14:String = "rnbqkbnr/pppppppp/1P6/1p6/Pk5P/1P6/PPPPPPPP/RNBQKBNR b KQkq e3 0 1".to_string();
+    // knight
+    let mut fen15:String = "rnbqkbnr/pppppppp/1p1p4/p3p3/2NP4/p3p3/PpPpPPPP/RNBQKBNR w KQkq e3 0 1".to_string();
+    let mut fen16:String = "rnbqkbnr/pppppppp/1P1P4/P3P3/2np4/P3P3/pbpbpppp/RNBQKBNR b KQkq e3 0 1".to_string();
+    //
     println!("{}", fen);
     fen = game_turn(fen, "".to_string());
     fen2 = game_turn(fen2, "".to_string());
@@ -36,6 +40,8 @@ fn main() {
     fen12 = game_turn(fen12, "".to_string());
     fen13 = game_turn(fen13, "".to_string());
     fen14 = game_turn(fen14, "".to_string());
+    fen15 = game_turn(fen15, "".to_string());
+    fen16 = game_turn(fen16, "".to_string());
     println!("{}", fen);
     println!("{:?}", board(fen.clone()));
     let mut i = checklegalmoves(fen.clone(), actiontranslation("h2 h4".to_string()));
@@ -161,7 +167,45 @@ fn main() {
         i = checklegalmoves(fen14.clone(), actiontranslation("b4 b3".to_string()));
         println!("{}", i);
     }
-    
+    if true == false {
+        println!("vertical");
+        i = checklegalmoves(fen15.clone(), actiontranslation("c4 b2".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen15.clone(), actiontranslation("c4 d2".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen15.clone(), actiontranslation("c4 b6".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen15.clone(), actiontranslation("c4 d6".to_string()));
+        println!("{}", i);
+        println!("horisontal");
+        i = checklegalmoves(fen15.clone(), actiontranslation("c4 a3".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen15.clone(), actiontranslation("c4 e3".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen15.clone(), actiontranslation("c4 a5".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen15.clone(), actiontranslation("c4 e5".to_string()));
+        println!("{}", i);
+
+        println!("vertical");
+        i = checklegalmoves(fen16.clone(), actiontranslation("c4 b2".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen16.clone(), actiontranslation("c4 d2".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen16.clone(), actiontranslation("c4 b6".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen16.clone(), actiontranslation("c4 d6".to_string()));
+        println!("{}", i);
+        println!("horisontal");
+        i = checklegalmoves(fen16.clone(), actiontranslation("c4 a3".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen16.clone(), actiontranslation("c4 e3".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen16.clone(), actiontranslation("c4 a5".to_string()));
+        println!("{}", i);
+        i = checklegalmoves(fen16.clone(), actiontranslation("c4 e5".to_string()));
+        println!("{}", i);
+    }
     fen = retranslate(fen);
     println!("{}", fen);
     println!("{:?}", actiontranslation("e4 d6".to_string()));
@@ -337,8 +381,19 @@ fn legalpawn(board:[[char; 8]; 8], action:[[usize; 2]; 2], turn: char) -> bool {
 }
 
 fn legalknight(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
-    
+    let movedistanse_long = action[0][0] as i32 - action[1][0] as i32;
+    let movedistanse_lat = action[0][1] as i32 - action[1][1] as i32;
 
+    if (movedistanse_lat == 2 || movedistanse_lat == -2) && (movedistanse_long == 1 || movedistanse_long == -1) {
+        if board[action[1][0]][action[1][1]] == '-' || board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+            return true;
+        }
+    }
+    else if (movedistanse_lat == 1 || movedistanse_lat == -1) && (movedistanse_long == 2 || movedistanse_long == -2) {
+        if board[action[1][0]][action[1][1]] == '-' || board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -518,4 +573,8 @@ fn legalking(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
     else {
         legalqueen(board, action)
     }
+}
+
+fn check() {
+
 }
