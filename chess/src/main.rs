@@ -26,7 +26,9 @@ fn main() {
     let mut fen16:String = "rnbqkbnr/pppppppp/1P1P4/P3P3/2np4/P3P3/pbpbpppp/RNBQKBNR b KQkq e3 0 1".to_string();
     //
     println!("{}", fen);
-    fen = game_turn(fen, "".to_string());
+    fen = game_turn(fen, "h2 h4".to_string());
+    println!("{}", fen);
+    println!(" ");
     fen2 = game_turn(fen2, "".to_string());
     fen3 = game_turn(fen3, "".to_string());
     fen4 = game_turn(fen4, "".to_string());
@@ -214,6 +216,10 @@ fn main() {
 fn game_turn(mut fen:String, action: String) -> String{
     fen = translate(fen);
     let actiontrans: [[usize; 2]; 2] = actiontranslation(action);
+    if checklegalmoves(fen.clone(), actiontrans) == true {
+        fen = makemove(fen, actiontrans);
+    }
+    fen = retranslate(fen);
     return fen;
 }
 
@@ -260,13 +266,21 @@ fn retranslate(fen:String) -> String {
             board = board.replace("--", "2");
             board = board.replace("-", "1");
         }
-        else {
+        else if boardstop == true && (i == 'w' || i == 'b') {
+            if i == 'w' {
+                board += &"b".to_string();
+            }
+            else if i == 'b' {
+                board += &"w".to_string();
+            }
+        }
+        else{
             board += &i.to_string()
         }
     }
     return board;
 }
-fn actiontranslation(action: String) -> [[usize; 2]; 2] {
+fn actiontranslation(action:String) -> [[usize; 2]; 2] {
     let mut translated: [[usize; 2]; 2] = [[0, 0], [0, 0]];
     let mut which:usize = 0;
     for i in action.chars() {
@@ -298,44 +312,68 @@ fn board(fen:String) -> [[char; 8]; 8] {
         else if i == '/' {
             lat += 1;
             long = 0;
-            println!("")
         }
         else {
             board[long][lat] = i;
             long += 1;
-            print!("{}", i)
         }
     }
-    println!("");
+    return board;
+}
+fn makemove(fen:String, action:[[usize; 2]; 2]) -> String{
+    let originalpos: usize = 1 + action[0][0] + action[0][1] * 9;
+    let newpos: usize = 1 + action[1][0] + action[1][1] * 9;
+    let mut count: usize = 1;
+    let mut piece: char = ' ';
+    for i in fen.chars() {
+        if count == originalpos {
+            piece = i;
+        }
+        count += 1;
+    }
+    count = 1;
+    let mut board:String = "".to_string();
+    for i in fen.chars() {
+        if count == newpos {
+            board += &piece.to_string();
+        }
+        else if count == originalpos {
+            board += "-";
+        }
+        else {
+            board += &i.to_string();
+        }
+        count += 1;
+    }
     return board;
 }
 
-fn checklegalmoves(mut fen:String, action: [[usize; 2]; 2]) -> bool {
+fn checklegalmoves(mut fen:String, action:[[usize; 2]; 2]) -> bool {
     let turn: char = fen.split_off(72).split_at(1).0.parse::<char>().unwrap();
-    let mut board: [[char; 8]; 8] = board(fen);
+    let board: [[char; 8]; 8] = board(fen);
     if (board[action[0][0]][action[0][1]] == 'P' && turn == 'w') || (board[action[0][0]][action[0][1]] == 'p' && turn == 'b') {
-        return legalpawn(board, action, turn);
+        if legalpawn(board, action, turn) == true && check(board, action, turn) == false {return true;}
     }
     else if (board[action[0][0]][action[0][1]] == 'N' && turn == 'w') || (board[action[0][0]][action[0][1]] == 'n' && turn == 'b') {
-        return legalknight(board, action)
+        if legalknight(board, action) == true && check(board, action, turn) == false {return true;}
     }
     else if (board[action[0][0]][action[0][1]] == 'B' && turn == 'w') || (board[action[0][0]][action[0][1]] == 'b' && turn == 'b') {
-        return legalbishop(board, action)
+        if legalbishop(board, action) == true && check(board, action, turn) == false {return true;}
     }
     else if (board[action[0][0]][action[0][1]] == 'R' && turn == 'w') || (board[action[0][0]][action[0][1]] == 'r' && turn == 'b') {
-        return legalrook(board, action)
+        if legalrook(board, action) == true && check(board, action, turn) == false {return true;}
     }
     else if (board[action[0][0]][action[0][1]] == 'Q' && turn == 'w') || (board[action[0][0]][action[0][1]] == 'q' && turn == 'b') {
-        return legalqueen(board, action)
+        if legalqueen(board, action) == true && check(board, action, turn) == false {return true;}
     }
     else if (board[action[0][0]][action[0][1]] == 'K' && turn == 'w') || (board[action[0][0]][action[0][1]] == 'k' && turn == 'b') {
-        return legalking(board, action);
+        if legalking(board, action) == true && check(board, action, turn) == false {return true;}
     }
     return false;
 }
 
 // can't allpasante
-fn legalpawn(board:[[char; 8]; 8], action:[[usize; 2]; 2], turn: char) -> bool {
+fn legalpawn(board:[[char; 8]; 8], action:[[usize; 2]; 2], turn:char) -> bool {
     let movedistanse_long = action[0][0] as i32 - action[1][0] as i32;
     let movedistanse_lat = action[0][1] as i32 - action[1][1] as i32;
     println!("{}", movedistanse_lat);
@@ -377,6 +415,7 @@ fn legalpawn(board:[[char; 8]; 8], action:[[usize; 2]; 2], turn: char) -> bool {
             }
         }
     }
+    println!("wda");
     return false;
 }
 
@@ -562,7 +601,7 @@ fn legalqueen(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
         return false;
     }
 }
-
+// can't castle
 fn legalking(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
     let movedistanse_long = action[0][0] as i32 - action[1][0] as i32;
     let movedistanse_lat = action[0][1] as i32 - action[1][1] as i32;
@@ -574,7 +613,158 @@ fn legalking(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
         legalqueen(board, action)
     }
 }
+// tested and fixed i think
+fn check(mut board:[[char; 8]; 8], action:[[usize; 2]; 2], turn:char) -> bool {
+    board[action[1][0]][action[1][1]] = board[action[0][0]][action[0][1]];
+    board[action[0][0]][action[0][1]] = '-';
+    let kingpos: [usize; 2] = findking(board, turn);
+    if kingpos == [9, 9] {return false;}
+    let knight: ((usize, usize), (usize, usize)) = ((1, 2), (2, 1));
+    let mut i: usize = 0;
+    if turn == 'w' {
+        while i < 8 {
+            //rook
+            if (kingpos[0] + i < 8) && (board[kingpos[0] + i][kingpos[1]] == 'r' || board[kingpos[0] + i][kingpos[1]] == 'q') {
+                return true;
+            }
+            if (kingpos[1] + i < 8) && (board[kingpos[0]][kingpos[1] + i] == 'r' || board[kingpos[0]][kingpos[1] + i] == 'q') {
+                return true;
+            }
+            if (kingpos[0] as i32 - i as i32 >= 0) && (board[kingpos[0] - i][kingpos[1]] == 'r' || board[kingpos[0] - i][kingpos[1]] == 'q') {
+                return true;
+            }
+            if (kingpos[1]  as i32 - i as i32 >= 0) && (board[kingpos[0]][kingpos[1] - i] == 'r' || board[kingpos[0]][kingpos[1] - i] == 'q') {
+                return true;
+            }
+            //bishop
+            if (kingpos[0] + i < 8) && (kingpos[1] + i < 8) && (board[kingpos[0] + i][kingpos[1] + i] == 'b' || board[kingpos[0] + i][kingpos[1] + i] == 'q') {
+                return true;
+            }
+            if (kingpos[0]  as i32 - i as i32 >= 0) && (kingpos[1] + i < 8) && (board[kingpos[0] - i][kingpos[1] + i] == 'b' || board[kingpos[0] - i][kingpos[1] + i] == 'q') {
+                return true;
+            }
+            if (kingpos[0] + i < 8) && (kingpos[1]  as i32 - i as i32 >= 0) && (board[kingpos[0] + i][kingpos[1] - i] == 'b' || board[kingpos[0] + i][kingpos[1] - i] == 'q') {
+                return true;
+            }
+            if (kingpos[0]  as i32 - i as i32 >= 0) && (kingpos[1]  as i32 - i as i32 >= 0) && (board[kingpos[0] - i][kingpos[1] - i] == 'b' || board[kingpos[0] - i][kingpos[1] - i] == 'q') {
+                return true;
+            }
+            i += 1;
+        }
+        i -= 1;
+        //vertical knight
+        if kingpos[0] + knight.0.0 < 8 && kingpos[1] + knight.0.1 < 8 && board[kingpos[0] + knight.0.0][kingpos[1] + knight.0.1] == 'n' {
+            return true;
+        }
+        if kingpos[0] as i32 - knight.0.0 as i32 >= 0 && kingpos[1] + knight.0.1 < 8 && board[kingpos[0] - knight.0.0][kingpos[1] + knight.0.1] == 'n' {
+            return true;
+        }
+        if kingpos[0] + knight.0.0 < 8 && kingpos[1] as i32 - knight.0.1 as i32 >= 0 && board[kingpos[0] + knight.0.0][kingpos[1] - knight.0.1] == 'n' {
+            return true;
+        }
+        if kingpos[0] as i32 - knight.0.0 as i32 >= 0 && kingpos[1]as i32  - knight.0.1 as i32 >= 0 && board[kingpos[0] - knight.0.0][kingpos[1] - knight.0.1] == 'n' {
+            return true;
+        }
+        //horisontal knight
+        if kingpos[0] + knight.1.0 < 8 && kingpos[1] + knight.1.1 < 8 && board[kingpos[0] + knight.1.0][kingpos[1] + knight.1.1] == 'n' {
+            return true;
+        }
+        if kingpos[0] as i32 - knight.1.0 as i32 >= 0 && kingpos[1] + knight.1.1 < 8 && board[kingpos[0] - knight.1.0][kingpos[1] + knight.1.1] == 'n' {
+            return true;
+        }
+        if kingpos[0] + knight.1.0 < 8 && kingpos[1] as i32 - knight.1.1 as i32 >= 0 && board[kingpos[0] + knight.1.0][kingpos[1] - knight.1.1] == 'n' {
+            return true;
+        }
+        if kingpos[0] as i32 - knight.1.0 as i32 >= 0 && kingpos[1] as i32 - knight.1.1 as i32 >= 0 && board[kingpos[0] - knight.1.0][kingpos[1] - knight.1.1] == 'n' {
+            return true;
+        }
+        //pawn
+        if kingpos[0] + 1 < 8 && kingpos[1] as i32 - 1 >= 0 && board[kingpos[0] + 1][kingpos[1] - 1] == 'p' {
+            return true;
+        }
+        if kingpos[0] as i32 - 1 >= 0 && kingpos[1] as i32 - 1 >= 0 && board[kingpos[0] - 1][kingpos[1] - 1] == 'p' {
+            return true;
+        }
+    }
+    else if turn == 'b'{
+        while i < 8 {
+            //rook
+            if (kingpos[0] + i < 8) && (board[kingpos[0] + i][kingpos[1]] == 'R' || board[kingpos[0] + i][kingpos[1]] == 'Q') {
+                return true;
+            }
+            if (kingpos[1] + i < 8) && (board[kingpos[0]][kingpos[1] + 1] == 'R' || board[kingpos[0]][kingpos[1] + i] == 'Q') {
+                return true;
+            }
+            if (kingpos[0] as i32 - i as i32 >= 0) && (board[kingpos[0] - i][kingpos[1]] == 'R' || board[kingpos[0] - i][kingpos[1]] == 'Q') {
+                return true;
+            }
+            if (kingpos[1] as i32 - i as i32 >= 0) && (board[kingpos[0]][kingpos[1] - i] == 'R' || board[kingpos[0]][kingpos[1] - i] == 'Q') {
+                return true;
+            }
+            //bishop
+            if (kingpos[0] + i < 8) && (kingpos[1] + i < 8) && (board[kingpos[0] + i][kingpos[1] + i] == 'B' || board[kingpos[0] + i][kingpos[1] + i] == 'Q') {
+                return true;
+            }
+            if (kingpos[0] as i32 - i as i32 >= 0) && (kingpos[1] + i < 8) && (board[kingpos[0] - i][kingpos[1] + i] == 'B' || board[kingpos[0] - i][kingpos[1] + i] == 'Q') {
+                return true;
+            }
+            if (kingpos[0] + i < 8) && (kingpos[1] as i32 - i as i32 >= 0) && (board[kingpos[0] + i][kingpos[1] - i] == 'B' || board[kingpos[0] + i][kingpos[1] - i] == 'Q') {
+                return true;
+            }
+            if (kingpos[0] as i32 - i as i32 >= 0) && (kingpos[1] as i32 - i as i32 >= 0) && (board[kingpos[0] - i][kingpos[1] - i] == 'B' || board[kingpos[0] - i][kingpos[1] - i] == 'Q') {
+                return true;
+            }
+            i += 1;
+        }
+        //vertical knight
+        if kingpos[0] + knight.0.0 < 8 && kingpos[1] + knight.0.1 < 8 && board[kingpos[0] + knight.0.0][kingpos[1] + knight.0.1] == 'N' {
+            return true;
+        }
+        if kingpos[0] as i32 - knight.0.0 as i32 >= 0 && kingpos[1] + knight.0.1 < 8 && board[kingpos[0] - knight.0.0][kingpos[1] + knight.0.1] == 'N' {
+            return true;
+        }
+        if kingpos[0] + knight.0.0 < 8 && kingpos[1] as i32 - knight.0.1 as i32 >= 0 && board[kingpos[0] + knight.0.0][kingpos[1] - knight.0.1] == 'N' {
+            return true;
+        }
+        if kingpos[0] as i32 - knight.0.0 as i32 >= 0 && kingpos[1] as i32 - knight.0.1 as i32 >= 0 && board[kingpos[0] - knight.0.0][kingpos[1] - knight.0.1] == 'N' {
+            return true;
+        }
+        //horisontal knight
+        if kingpos[0] + knight.1.0 < 8 && kingpos[1] + knight.1.1 < 8 && board[kingpos[0] + knight.1.0][kingpos[1] + knight.1.1] == 'N' {
+            return true;
+        }
+        if kingpos[0] as i32 - knight.1.0 as i32 >= 0 && kingpos[1] + knight.1.1 < 8 && board[kingpos[0] - knight.1.0][kingpos[1] + knight.1.1] == 'N' {
+            return true;
+        }
+        if kingpos[0] + knight.1.0 < 8 && kingpos[1] as i32 - knight.1.1 as i32 >= 0 && board[kingpos[0] + knight.1.0][kingpos[1] - knight.1.1] == 'N' {
+            return true;
+        }
+        if kingpos[0] as i32 - knight.1.0 as i32 >= 0 && kingpos[1] as i32 - knight.1.1 as i32 >= 0 && board[kingpos[0] - knight.1.0][kingpos[1] - knight.1.1] == 'N' {
+            return true;
+        }
+        //pawn
+        if kingpos[0] + 1 < 8 && kingpos[1] as i32 - 1 >= 0 && board[kingpos[0] + 1][kingpos[1] - 1] == 'P' {
+            return true;
+        }
+        if kingpos[0] as i32 - 1 >= 0 && kingpos[1] as i32 - 1 >= 0 && board[kingpos[0] - 1][kingpos[1] - 1] == 'P' {
+            return true;
+        }
+    }
+    return false
+}
 
-fn check() {
-
+fn findking(board:[[char; 8]; 8], turn:char) -> [usize; 2] {
+    let mut i: usize = 0;
+    let mut j: usize = 0;
+    while i < 8 {
+        j = 0;
+        while j < 8 {
+            if (turn == 'w' && board[i][j] == 'K') || (turn == 'b' && board[i][j] == 'k') {
+                return [i, j];
+            }
+            j += 1;
+        }
+        i += 1;
+    }
+    return [9, 9]
 }
