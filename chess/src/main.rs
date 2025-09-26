@@ -26,7 +26,7 @@ fn main() {
     let mut fen16:String = "rnbqkbnr/pppppppp/1P1P4/P3P3/2np4/P3P3/pbpbpppp/RNBQKBNR b KQkq e3 0 1".to_string();
     //
     println!("{}", fen);
-    fen = game_turn(fen, "h2 h4".to_string());
+    fen = game_turn(fen, "h2 h5".to_string());
     println!("{}", fen);
     println!(" ");
     fen2 = game_turn(fen2, "".to_string());
@@ -219,6 +219,9 @@ fn game_turn(mut fen:String, action: String) -> String{
     if checklegalmoves(fen.clone(), actiontrans) == true {
         fen = makemove(fen, actiontrans);
     }
+    else {
+        fen = retranslate(fen);
+    }
     fen = retranslate(fen);
     return fen;
 }
@@ -371,7 +374,6 @@ fn checklegalmoves(mut fen:String, action:[[usize; 2]; 2]) -> bool {
     }
     return false;
 }
-
 // can't allpasante
 fn legalpawn(board:[[char; 8]; 8], action:[[usize; 2]; 2], turn:char) -> bool {
     let movedistanse_long = action[0][0] as i32 - action[1][0] as i32;
@@ -613,7 +615,7 @@ fn legalking(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
         legalqueen(board, action)
     }
 }
-// tested and fixed i think
+
 fn check(mut board:[[char; 8]; 8], action:[[usize; 2]; 2], turn:char) -> bool {
     board[action[1][0]][action[1][1]] = board[action[0][0]][action[0][1]];
     board[action[0][0]][action[0][1]] = '-';
