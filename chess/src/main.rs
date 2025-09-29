@@ -1,5 +1,8 @@
 use std::{array, thread::AccessError};
 // todo castling check checkmate and and maby alpasante
+
+// "Unit tests"
+
 fn main() {
     let mut fen:String = "rnbqkbnr/pppppppp/1P4P1/8/8/1p4p1/PPPPPPPP/RNBQKBNR w KQkq e3 0 1".to_string();
     let mut fen2:String = "rnbqkbnr/pppppppp/1P4P1/8/8/1p4p1/PPPPPPPP/RNBQKBNR b KQkq e3 0 1".to_string();
