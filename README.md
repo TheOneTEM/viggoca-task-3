@@ -1,3 +1,10 @@
 # viggoca-task-3
 
-only call on game_turn and give it game state as FEN-string before the move is done and the move to be as current position and new posision the funktion will return with the acction taken if it is lagal in the form of a FEN-string with whos turn it is switched as well the progam can't castle or alpasante as i did not have time to complete those
+This library has only *one* public function: game_turn. It takes the following args: 
+
+- fen: Current game state (FEN string) as argument
+- action: String in the form "e2 e4" where the first algebraic coordinate is the square of the piece to move, and the second coordinate is the square to which to move to.
+
+The function will return the new FEN string if a valid move was made, otherwise it will return the original FEN string. 
+
+The library can't castle or en passant, as I did not have time to complete those.
