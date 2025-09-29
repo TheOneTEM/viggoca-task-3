@@ -1,5 +1,4 @@
-use std::{array, thread::AccessError};
-// todo castling check checkmate and and maby alpasante
+
 
 // "Unit tests"
 
@@ -216,7 +215,7 @@ fn main() {
     println!("{:?}", actiontranslation("e4 d6".to_string()));
     
 }
-fn game_turn(mut fen:String, action: String) -> String{
+pub fn game_turn(mut fen:String, action: String) -> String{
     fen = translate(fen);
     let actiontrans: [[usize; 2]; 2] = actiontranslation(action);
     if checklegalmoves(fen.clone(), actiontrans) == true {
