@@ -394,10 +394,10 @@ fn legalpawn(board:[[char; 8]; 8], action:[[usize; 2]; 2], turn:char) -> bool {
             return true;
         }
         else if movedistanse_lat == 1 && (movedistanse_long == 1 || movedistanse_long == -1){
-            if movedistanse_long == 1 && action[0][0] != 0 && board[action[0][0] - 1][action[0][1] - 1].is_uppercase() == false && board[action[0][0] - 1][action[0][1] - 1] != '-' {
+            if movedistanse_long == 1 && action[0][0] != 0 && board[action[0][0] - 1][action[0][1] - 1].is_ascii_uppercase() == false && board[action[0][0] - 1][action[0][1] - 1] != '-' {
                 return true;
             }
-            else if movedistanse_long == -1 && action[0][0] != 7 && board[action[0][0] + 1][action[0][1] - 1].is_uppercase() == false && board[action[0][0] + 1][action[0][1] - 1] != '-' {
+            else if movedistanse_long == -1 && action[0][0] != 7 && board[action[0][0] + 1][action[0][1] - 1].is_ascii_uppercase() == false && board[action[0][0] + 1][action[0][1] - 1] != '-' {
                 return true;
             }
         }
@@ -411,10 +411,10 @@ fn legalpawn(board:[[char; 8]; 8], action:[[usize; 2]; 2], turn:char) -> bool {
             return true;
         }
         else if movedistanse_lat == -1 && (movedistanse_long == 1 || movedistanse_long == -1){
-            if movedistanse_long == 1 && action[0][0] != 0 && board[action[0][0] - 1][action[0][1] + 1].is_uppercase() == true && board[action[0][0] - 1][action[0][1] + 1] != '-' {
+            if movedistanse_long == 1 && action[0][0] != 0 && board[action[0][0] - 1][action[0][1] + 1].is_ascii_uppercase() == true && board[action[0][0] - 1][action[0][1] + 1] != '-' {
                 return true;
             }
-            else if movedistanse_long == -1 && action[0][0] != 7 && board[action[0][0] + 1][action[0][1] + 1].is_uppercase() == true && board[action[0][0] + 1][action[0][1] + 1] != '-' {
+            else if movedistanse_long == -1 && action[0][0] != 7 && board[action[0][0] + 1][action[0][1] + 1].is_ascii_uppercase() == true && board[action[0][0] + 1][action[0][1] + 1] != '-' {
                 return true;
             }
         }
@@ -428,12 +428,12 @@ fn legalknight(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
     let movedistanse_lat = action[0][1] as i32 - action[1][1] as i32;
 
     if (movedistanse_lat == 2 || movedistanse_lat == -2) && (movedistanse_long == 1 || movedistanse_long == -1) {
-        if board[action[1][0]][action[1][1]] == '-' || board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+        if board[action[1][0]][action[1][1]] == '-' || board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
             return true;
         }
     }
     else if (movedistanse_lat == 1 || movedistanse_lat == -1) && (movedistanse_long == 2 || movedistanse_long == -2) {
-        if board[action[1][0]][action[1][1]] == '-' || board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+        if board[action[1][0]][action[1][1]] == '-' || board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
             return true;
         }
     }
@@ -445,14 +445,15 @@ fn legalbishop(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
     let movedistanse_lat = action[0][1] as i32 - action[1][1] as i32;
     let mut i = 1;
 
-    if movedistanse_long == movedistanse_lat || movedistanse_long == -movedistanse_lat {
-        while i * i <= movedistanse_lat * movedistanse_lat {
+    if movedistanse_long == movedistanse_lat || movedistanse_long == -movedistanse_lat { // if move is diagonal from source square
+
+        while i * i <= movedistanse_lat * movedistanse_lat { // while i^2 < movedistance_lat^2????
             if movedistanse_lat < 0 && movedistanse_long < 0 {
                 if board[action[0][0] + i as usize][action[0][1] + i as usize] == '-' {
                     i += 1;
                 }
                 else if action[0][0] + i as usize == action[1][0] && action[0][1] + i as usize == action[1][1] {
-                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
                         return true;
                     }
                     else if board[action[1][0]][action[1][1]] == '-' {
@@ -468,7 +469,7 @@ fn legalbishop(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
                     i += 1;
                 }
                 else if action[0][0] + i as usize == action[1][0] && action[0][1] - i as usize == action[1][1] {
-                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
                         return true;
                     }
                     else if board[action[1][0]][action[1][1]] == '-' {
@@ -484,7 +485,7 @@ fn legalbishop(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
                     i += 1;
                 }
                 else if action[0][0] - i as usize == action[1][0] && action[0][1] + i as usize == action[1][1] {
-                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
                         return true;
                     }
                     else if board[action[1][0]][action[1][1]] == '-' {
@@ -500,7 +501,7 @@ fn legalbishop(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
                     i += 1;
                 }
                 else if action[0][0] - i as usize == action[1][0] && action[0][1] - i as usize == action[1][1] {
-                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
                         return true;
                     }
                     else if board[action[1][0]][action[1][1]] == '-' {
@@ -528,7 +529,7 @@ fn legalrook(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
                     i += 1;
                 }
                 else if action[0][0] - i as usize == action[1][0] {
-                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
                         return true;
                     }
                     else if board[action[1][0]][action[1][1]] == '-' {
@@ -544,7 +545,7 @@ fn legalrook(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
                     i += 1;
                 }
                 else if action[0][0] + i as usize == action[1][0] {
-                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
                         return true;
                     }
                     else if board[action[1][0]][action[1][1]] == '-' {
@@ -564,7 +565,7 @@ fn legalrook(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
                     i += 1;
                 }
                 else if action[0][1] - i as usize == action[1][1] {
-                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
                         return true;
                     }
                     else if board[action[1][0]][action[1][1]] == '-' {
@@ -580,7 +581,7 @@ fn legalrook(board:[[char; 8]; 8], action:[[usize; 2]; 2]) -> bool {
                     i += 1;
                 }
                 else if action[0][1] + i as usize == action[1][1] {
-                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_uppercase() != board[action[1][0]][action[1][1]].is_uppercase() {
+                    if board[action[1][0]][action[1][1]] != '-' && board[action[0][0]][action[0][1]].is_ascii_uppercase() != board[action[1][0]][action[1][1]].is_ascii_uppercase() {
                         return true;
                     }
                     else if board[action[1][0]][action[1][1]] == '-' {
