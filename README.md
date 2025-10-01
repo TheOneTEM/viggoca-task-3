@@ -8,3 +8,8 @@ This library has only *one* public function: game_turn. It takes the following a
 The function will return the new FEN string if a valid move was made, otherwise it will return the original FEN string. 
 
 The library can't castle or en passant, as I did not have time to complete those.
+
+
+## Unexpected Behaviour
+
+Bishops, rooks, queens, and kings can't move unless the move is a capture.
